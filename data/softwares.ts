@@ -47,6 +47,7 @@ export interface Software {
   category: string;
   price: string;
   image?: string;
+  gallery?: string[];
   videoUrl?: string;
   demoUrl?: string;
   downloadUrl?: string;
@@ -104,10 +105,15 @@ export const softwares: Software[] = [
     category: "Optique & Gestion",
     price: "Licence / Devis",
     badge: "100% Maroc",
-    image: "/screenshots/opticpro.png",
-    demoUrl: "https://votre-lien-firebase.web.app",
+    image: "/screenshots/opticpro-1.png",
+    gallery: [
+      "/screenshots/opticpro-1.png",
+      "/screenshots/opticpro-2.png",
+      "/screenshots/opticpro-3.png",
+    ],
+    demoUrl: "https://opticprodemo.web.app/",
     downloadUrl: "/downloads/OpticPro-Setup.exe",
-    whatsappPhone: "212600000000",
+    whatsappPhone: "212658204441",
     features: [
       "Routine du Matin (60s) & Chasse aux montures oubliées",
       "Dossiers patients, réfraction & simulateur d'épaisseur / Bug Eye (1.50 à 1.74) + Mode Démo Client",
@@ -191,7 +197,8 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
 ✅ Suivi Mutuelles (CNOPS, CNSS, AXA, Wafa...) avec scan des pièces
 ✅ Stock intelligent, devis, reçus thermiques, crédits clients & bilan net
 ✅ Application mobile dédiée à votre magasin incluse
-🔗 Testez gratuitement la démo en direct ici : https://votre-lien-firebase.web.app`,
+🔗 Testez gratuitement la démo en direct ici : https://opticprodemo.web.app/
+📲 Contact WhatsApp : +212 6 58 20 44 41`,
   },
   {
     id: "autoloc-mobile",
@@ -211,10 +218,15 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
     ],
     primaryCtaLabel: "Demander une démonstration gratuite",
     secondaryCtaLabel: "Voir le logiciel en action",
-    image: "/screenshots/autoloc-mobile.png",
-    demoUrl: "https://autoloc-mobile.vercel.app",
+    image: "/screenshots/autoloc-1.png",
+    gallery: [
+      "/screenshots/autoloc-1.png",
+      "/screenshots/autoloc-2.png",
+      "/screenshots/autoloc-3.png",
+    ],
+    demoUrl: "https://locationauto-demo-naxe.vercel.app/",
     downloadUrl: "/downloads/AutoLoc-Setup.exe",
-    whatsappPhone: "212600000000",
+    whatsappPhone: "212658204441",
     features: [
       "Planning visuel & anti-conflits de réservation",
       "Contrats & documents générés en 30 secondes",
@@ -454,7 +466,8 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
 ✅ Rentabilité réelle (ROI) par véhicule & alertes entretien automatiques
 ✅ Recherche instantanée des radars & infractions + Liste noire clients
 ✅ Fonctionne 100 % hors-ligne & en ligne + connexion WhatsApp / Aéroport
-🔗 Testez la démo en action ici : https://autoloc-mobile.vercel.app`,
+🔗 Testez le logiciel en action ici : https://locationauto-demo-naxe.vercel.app/
+📲 Contact WhatsApp : +212 6 58 20 44 41`,
   },
   {
     id: "visa-agency",
@@ -469,7 +482,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
     price: "Licence / Devis",
     badge: "100% Maroc",
     image: "/screenshots/visa-agency.png",
-    whatsappPhone: "212600000000",
+    whatsappPhone: "212658204441",
     features: [
       "Dossiers & Clients : suivi par destination et type de visa (Tourisme, Affaires, Études, Travail, Regroupement familial)",
       "Documents, OCR & PDF : scan/extraction passeport & MRZ, fusion, compression sous seuil et découpage multi-pages",
@@ -582,7 +595,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
 ✅ Planning RDV consulaires & rappels automatiques sur WhatsApp
 ✅ Suivi financier (total, avances, soldes impayés) & impression de factures
 ✅ Fonctionne même sans connexion internet avec synchronisation automatique
-🔗 Contactez-nous sur WhatsApp pour une démonstration gratuite !`,
+📲 Contact WhatsApp : +212 6 58 20 44 41`,
   },
   {
     id: "parapro-suite",
@@ -595,7 +608,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
     image: "/screenshots/parapro.png",
     demoUrl: "https://parapro-maroc.web.app",
     downloadUrl: "/downloads/ParaPro-Setup.exe",
-    whatsappPhone: "212600000000",
+    whatsappPhone: "212658204441",
     features: [
       "Scan code-barres ultra-rapide",
       "Gestion des crédits et paiements partiels",

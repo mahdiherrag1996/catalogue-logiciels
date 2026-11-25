@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { softwares } from "../data/softwares";
+import { softwares, Software } from "../data/softwares";
 import {
   Sparkles,
   ArrowUpRight,
@@ -15,10 +15,139 @@ import {
   Terminal,
   Zap,
   Globe,
+  X,
+  ZoomIn,
+  Eye,
+  ArrowRight,
 } from "lucide-react";
+
+const WHATSAPP_NUMBER = "212658204441";
+
+function ImageLightbox({
+  src,
+  alt,
+  onClose,
+}: {
+  src: string | null;
+  alt: string;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    if (!src) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [src, onClose]);
+
+  if (!src) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+      role="dialog"
+      aria-modal="true"
+      aria-label={alt}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-w-5xl w-full rounded-2xl bg-slate-900 border border-slate-700/80 shadow-2xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-900/95 border-b border-slate-800">
+          <span className="text-xs md:text-sm font-medium text-slate-200 truncate">
+            {alt}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer l'image"
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="bg-slate-950 flex items-center justify-center p-3 md:p-6 max-h-[82vh]">
+          <img
+            src={src}
+            alt={alt}
+            className="max-w-full max-h-[75vh] object-contain rounded-lg"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SoftwarePreviewCard({
+  soft,
+  onZoom,
+}: {
+  soft: Software;
+  onZoom: (src: string, alt: string) => void;
+}) {
+  const [imgError, setImgError] = useState(false);
+
+  return (
+    <div className="w-full h-56 md:h-64 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-inner overflow-hidden flex flex-col group-hover:scale-[1.01] transition-transform duration-300">
+      <div className="h-9 bg-white border-b border-slate-200/80 px-4 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
+        </div>
+        <Link
+          href={`/logiciel/${soft.id}`}
+          className="text-[11px] font-mono text-slate-500 hover:text-violet-600 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/70 transition"
+        >
+          {soft.id}.app
+        </Link>
+        <div className="w-8" />
+      </div>
+
+      <div className="flex-1 relative overflow-hidden bg-slate-100">
+        {soft.image && !imgError ? (
+          <div
+            onClick={() => onZoom(soft.image!, `Aperçu ${soft.name}`)}
+            title="Cliquer pour agrandir"
+            className="w-full h-full relative cursor-zoom-in"
+          >
+            <img
+              src={soft.image}
+              alt={`Aperçu ${soft.name}`}
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-300"
+            />
+            <span className="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-lg bg-slate-900/75 text-white text-[11px] font-medium flex items-center gap-1 backdrop-blur-sm">
+              <ZoomIn className="w-3.5 h-3.5" /> Agrandir
+            </span>
+          </div>
+        ) : (
+          <Link
+            href={`/logiciel/${soft.id}`}
+            className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50/60 via-white to-violet-50/70"
+          >
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600/10 to-violet-600/10 border border-violet-200 flex items-center justify-center mb-3 text-violet-600 shadow-sm">
+              <Layers className="w-6 h-6" />
+            </div>
+            <p className="text-xs font-semibold text-slate-700">Interface {soft.name}</p>
+            <p className="text-[11px] text-violet-600 font-medium mt-1">
+              Cliquer pour voir la fiche complète →
+            </p>
+          </Link>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<string>("Tous");
+  const [zoomedImage, setZoomedImage] = useState<{ src: string; alt: string } | null>(
+    null
+  );
 
   const categories = ["Tous", ...Array.from(new Set(softwares.map((s) => s.category)))];
 
@@ -32,6 +161,12 @@ export default function Home() {
       <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0" />
       <div className="fixed top-[-15%] left-1/2 -translate-x-1/2 w-[950px] h-[520px] bg-gradient-to-tr from-blue-500/15 via-violet-500/20 to-fuchsia-400/15 blur-[130px] rounded-full pointer-events-none z-0" />
       <div className="fixed top-[20%] right-[-10%] w-[500px] h-[400px] bg-blue-400/10 blur-[120px] rounded-full pointer-events-none z-0" />
+
+      <ImageLightbox
+        src={zoomedImage?.src || null}
+        alt={zoomedImage?.alt || ""}
+        onClose={() => setZoomedImage(null)}
+      />
 
       <header className="sticky top-5 z-50 px-4">
         <nav className="max-w-4xl mx-auto h-14 px-5 rounded-full bg-white/80 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex items-center justify-between">
@@ -57,7 +192,7 @@ export default function Home() {
           </div>
 
           <a
-            href="https://wa.me/212600000000"
+            href={`https://wa.me/${WHATSAPP_NUMBER}`}
             target="_blank"
             rel="noreferrer"
             className="text-xs font-semibold bg-gradient-to-r from-blue-600 to-violet-600 text-white px-4 py-2 rounded-full hover:opacity-95 transition flex items-center gap-1.5 shadow-md shadow-blue-600/20"
@@ -96,7 +231,7 @@ export default function Home() {
               <Sparkles className="w-4 h-4" /> Explorer les logiciels
             </a>
             <a
-              href="https://wa.me/212600000000"
+              href={`https://wa.me/${WHATSAPP_NUMBER}`}
               target="_blank"
               rel="noreferrer"
               className="px-7 py-4 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-800 font-semibold text-sm shadow-sm transition flex items-center gap-2"
@@ -132,6 +267,7 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-7 mb-28">
           {filteredSoftwares.map((soft, index) => {
             const isFeatured = index === 0;
+            const phone = soft.whatsappPhone || WHATSAPP_NUMBER;
 
             return (
               <div
@@ -143,34 +279,21 @@ export default function Home() {
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.03] via-transparent to-violet-500/[0.05] opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
 
                 <div className={`grid ${isFeatured ? "lg:grid-cols-12 gap-8 items-center" : "grid-cols-1 gap-6"}`}>
-                  <Link
-                    href={`/logiciel/${soft.id}`}
-                    className={`${isFeatured ? "lg:col-span-7 order-1 lg:order-2" : ""} block`}
-                  >
-                    <div className="w-full h-56 md:h-64 rounded-2xl bg-slate-50 border border-slate-200/90 shadow-inner overflow-hidden flex flex-col group-hover:scale-[1.01] transition-transform duration-300">
-                      <div className="h-9 bg-white border-b border-slate-200/80 px-4 flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
-                        </div>
-                        <span className="text-[11px] font-mono text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-md border border-slate-200/70">
-                          {soft.id}.app
-                        </span>
-                        <div className="w-8" />
-                      </div>
+                  <div className={`${isFeatured ? "lg:col-span-7 order-1 lg:order-2 flex flex-col gap-4" : "flex flex-col gap-4"}`}>
+                    <SoftwarePreviewCard
+                      soft={soft}
+                      onZoom={(src, alt) => setZoomedImage({ src, alt })}
+                    />
 
-                      <div className="flex-1 relative flex flex-col items-center justify-center p-6 bg-gradient-to-br from-blue-50/60 via-white to-violet-50/70">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600/10 to-violet-600/10 border border-violet-200 flex items-center justify-center mb-3 text-violet-600 shadow-sm">
-                          <Layers className="w-6 h-6" />
-                        </div>
-                        <p className="text-xs font-semibold text-slate-700">Interface {soft.name}</p>
-                        <p className="text-[11px] text-violet-600 font-medium mt-1">
-                          Cliquer pour voir la fiche complète →
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
+                    <Link
+                      href={`/logiciel/${soft.id}`}
+                      className="w-full py-4 px-6 rounded-2xl bg-slate-900 hover:bg-gradient-to-r hover:from-blue-600 hover:to-violet-600 text-white font-bold text-sm md:text-base transition-all duration-200 shadow-md flex items-center justify-center gap-2.5"
+                    >
+                      <Eye className="w-5 h-5" />
+                      <span>Voir détail</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </Link>
+                  </div>
 
                   <div className={`${isFeatured ? "lg:col-span-5 order-2 lg:order-1" : ""} flex flex-col justify-between`}>
                     <div>
@@ -204,23 +327,25 @@ export default function Home() {
                       </ul>
                     </div>
 
-                    <div className="flex items-center gap-3 pt-4 border-t border-slate-100">
-                      <a
-                        href={`https://wa.me/212600000000?text=Bonjour, je souhaite obtenir une démo pour ${encodeURIComponent(
-                          soft.name
-                        )}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold text-xs md:text-sm text-center transition shadow-md shadow-violet-500/20 flex items-center justify-center gap-2"
-                      >
-                        Obtenir le logiciel <ArrowUpRight className="w-4 h-4" />
-                      </a>
-                      <Link
-                        href={`/logiciel/${soft.id}`}
-                        className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-800 text-xs md:text-sm font-semibold flex items-center gap-2 transition"
-                      >
-                        <Play className="w-4 h-4 text-violet-600" /> Fiche & Démo
-                      </Link>
+                    <div className="flex flex-col gap-3 pt-4 border-t border-slate-100">
+                      <div className="flex items-center gap-3">
+                        <a
+                          href={`https://wa.me/${phone}?text=Bonjour, je souhaite obtenir une démo pour ${encodeURIComponent(
+                            soft.name
+                          )}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 text-white font-semibold text-xs md:text-sm text-center transition shadow-md shadow-violet-500/20 flex items-center justify-center gap-2"
+                        >
+                          Obtenir le logiciel <ArrowUpRight className="w-4 h-4" />
+                        </a>
+                        <Link
+                          href={`/logiciel/${soft.id}`}
+                          className="py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200/80 border border-slate-200 text-slate-800 text-xs md:text-sm font-semibold flex items-center gap-2 transition"
+                        >
+                          <Play className="w-4 h-4 text-violet-600" /> Fiche & Démo
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { softwares } from "../../../data/softwares";
@@ -18,11 +18,141 @@ import {
   XCircle,
   Quote,
   Car,
+  X,
+  ZoomIn,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
-export default function SoftwareDetailPage() {
+function GalleryLightbox({
+  images,
+  activeIndex,
+  title,
+  onClose,
+  onSelectIndex,
+}: {
+  images: string[];
+  activeIndex: number | null;
+  title: string;
+  onClose: () => void;
+  onSelectIndex: (idx: number) => void;
+}) {
+  useEffect(() => {
+    if (activeIndex === null) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight" && images.length > 1) {
+        onSelectIndex((activeIndex + 1) % images.length);
+      }
+      if (e.key === "ArrowLeft" && images.length > 1) {
+        onSelectIndex((activeIndex - 1 + images.length) % images.length);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeIndex, images.length, onClose, onSelectIndex]);
+
+  if (activeIndex === null || !images[activeIndex]) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-[100] bg-slate-950/85 backdrop-blur-sm flex items-center justify-center p-4 md:p-8"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${title} capture ${activeIndex + 1}`}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative max-w-5xl w-full rounded-2xl bg-slate-900 border border-slate-700/80 shadow-2xl overflow-hidden"
+      >
+        <div className="flex items-center justify-between px-4 py-3 bg-slate-900/95 border-b border-slate-800">
+          <span className="text-xs md:text-sm font-medium text-slate-200 truncate">
+            {title} — Image {activeIndex + 1} / {images.length}
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Fermer l'image"
+            className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="relative bg-slate-950 flex items-center justify-center p-3 md:p-6 max-h-[82vh]">
+          {images.length > 1 && (
+            <button
+              type="button"
+              onClick={() =>
+                onSelectIndex((activeIndex - 1 + images.length) % images.length)
+              }
+              aria-label="Image précédente"
+              className="absolute left-3 md:left-5 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700 transition"
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
+
+          <img
+            src={images[activeIndex]}
+            alt={`${title} capture ${activeIndex + 1}`}
+            className="max-w-full max-h-[75vh] object-contain rounded-lg"
+          />
+
+          {images.length > 1 && (
+            <button
+              type="button"
+              onClick={() => onSelectIndex((activeIndex + 1) % images.length)}
+              aria-label="Image suivante"
+              className="absolute right-3 md:right-5 p-2.5 rounded-full bg-slate-900/80 hover:bg-slate-800 text-white border border-slate-700 transition"
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GalleryImageCard({
+  src,
+  alt,
+  onClick,
+}: {
+  src: string;
+  alt: string;
+  onClick: () => void;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) return null;
+
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title="Cliquer pour agrandir"
+      className="group relative text-left rounded-2xl overflow-hidden border border-slate-200/90 bg-white shadow-sm cursor-zoom-in focus:outline-none focus:ring-2 focus:ring-violet-500"
+    >
+      <img
+        src={src}
+        alt={alt}
+        onError={() => setFailed(true)}
+        className="w-full h-52 object-cover object-top group-hover:scale-105 transition-transform duration-300"
+      />
+      <span className="absolute bottom-3 right-3 px-2.5 py-1.5 rounded-lg bg-slate-900/75 text-white text-[11px] font-medium flex items-center gap-1 backdrop-blur-sm">
+        <ZoomIn className="w-3.5 h-3.5" /> Agrandir
+      </span>
+    </button>
+  );
+}
+
+function SoftwareDetailContent() {
   const params = useParams<{ id: string }>();
   const [copied, setCopied] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
   const software = softwares.find((s) => s.id === params.id);
 
@@ -40,7 +170,7 @@ export default function SoftwareDetailPage() {
     );
   }
 
-  const phone = software.whatsappPhone || "212600000000";
+  const phone = software.whatsappPhone || "212658204441";
   const whatsappDemoText = encodeURIComponent(
     `Bonjour, je souhaite demander une démonstration gratuite pour ${software.brandName || software.name}.`
   );
@@ -56,13 +186,26 @@ export default function SoftwareDetailPage() {
   };
 
   const hasBenefitsTable = software.modules?.some((m) => Boolean(m.benefit));
+  const galleryImages =
+    software.gallery && software.gallery.length > 0
+      ? software.gallery
+      : software.image
+      ? [software.image]
+      : [];
 
   return (
     <div className="min-h-screen relative bg-white text-slate-900 selection:bg-violet-500/20 selection:text-violet-900">
       <div className="fixed inset-0 bg-grid-pattern pointer-events-none z-0" />
       <div className="fixed top-[-15%] left-1/2 -translate-x-1/2 w-[950px] h-[500px] bg-gradient-to-tr from-blue-500/15 via-violet-500/20 to-fuchsia-400/15 blur-[130px] rounded-full pointer-events-none z-0" />
 
-      {/* BARRE DE NAVIGATION DEDIEE (HEADER) */}
+      <GalleryLightbox
+        images={galleryImages}
+        activeIndex={lightboxIndex}
+        title={software.brandName || software.name}
+        onClose={() => setLightboxIndex(null)}
+        onSelectIndex={(idx) => setLightboxIndex(idx)}
+      />
+
       <header className="sticky top-4 z-50 px-4 pt-4">
         <nav className="max-w-5xl mx-auto h-14 px-5 rounded-full bg-white/85 backdrop-blur-xl border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -112,7 +255,6 @@ export default function SoftwareDetailPage() {
       </header>
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-10">
-        {/* SECTION 1 : HERO SECTION */}
         <div className="rounded-3xl border border-slate-200/90 bg-white/95 backdrop-blur-xl p-6 md:p-12 shadow-[0_10px_40px_-15px_rgba(15,23,42,0.08)] mb-12">
           <div className="flex flex-wrap items-center gap-2.5 mb-5">
             {software.badge && (
@@ -194,7 +336,24 @@ export default function SoftwareDetailPage() {
           )}
         </div>
 
-        {/* SECTION 2 : LE PROBLÈME VS LA SOLUTION */}
+        {galleryImages.length > 0 && (
+          <section className="mb-14">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
+              Aperçu de l&apos;interface {software.brandName || software.name}
+            </h2>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {galleryImages.map((src, idx) => (
+                <GalleryImageCard
+                  key={idx}
+                  src={src}
+                  alt={`${software.name} capture ${idx + 1}`}
+                  onClick={() => setLightboxIndex(idx)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         {software.problemSection && (
           <section className="mb-14 rounded-3xl border border-slate-200/90 bg-slate-50/70 p-6 md:p-10">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-2">
@@ -231,7 +390,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* PILIERS DE VALEUR (SI DÉFINIS) */}
         {software.pillars && software.pillars.length > 0 && (
           <section id="avantages" className="mb-14">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
@@ -254,7 +412,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 3 : FONCTIONNALITÉS CLÉS */}
         {software.modules && software.modules.length > 0 ? (
           <section id="fonctionnalites" className="mb-14">
             <div className="mb-6">
@@ -332,7 +489,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 4 : COMMENT ÇA MARCHE ? (3 ÉTAPES) */}
         {software.stepsSection && (
           <section className="mb-14">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
@@ -355,7 +511,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 5 : TABLEAU COMPARATIF */}
         {software.comparisonSection && (
           <section id="avantages" className="mb-14">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
@@ -392,7 +547,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 6 : TÉMOIGNAGES CLIENTS */}
         {software.testimonialsSection && (
           <section className="mb-14">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6">
@@ -420,7 +574,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 7 : OFFRES & TARIFICATION */}
         {software.pricingSection && (
           <section id="tarifs" className="mb-14">
             <div className="text-center max-w-2xl mx-auto mb-8">
@@ -495,7 +648,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 8 : FOIRE AUX QUESTIONS (FAQ) */}
         {software.faqs && software.faqs.length > 0 && (
           <section id="faq" className="mb-14">
             <h2 className="text-2xl md:text-3xl font-extrabold text-slate-900 mb-6 flex items-center gap-2.5">
@@ -520,7 +672,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* SECTION 9 : APPEL À L'ACTION FINAL (CLOSING) */}
         {software.ctaFinal && (
           <section className="rounded-3xl bg-gradient-to-r from-blue-600 to-violet-600 text-white p-8 md:p-12 mb-10 shadow-lg shadow-violet-500/20 text-center">
             <h2 className="text-2xl md:text-4xl font-extrabold mb-3">
@@ -554,7 +705,6 @@ export default function SoftwareDetailPage() {
           </section>
         )}
 
-        {/* ARGUMENTAIRE RÉSEAUX SOCIAUX / WHATSAPP */}
         {software.pitchCopy && (
           <section className="rounded-3xl border border-violet-200/80 bg-gradient-to-br from-blue-50/60 via-white to-violet-50/70 p-6 md:p-8 mb-8">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
@@ -605,5 +755,19 @@ export default function SoftwareDetailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SoftwareDetailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center text-sm text-slate-500">
+          Chargement de la fiche logiciel...
+        </div>
+      }
+    >
+      <SoftwareDetailContent />
+    </Suspense>
   );
 }
