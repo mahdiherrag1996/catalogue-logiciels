@@ -481,7 +481,12 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
     category: "Agences de Visa",
     price: "Licence / Devis",
     badge: "100% Maroc",
-    image: "/screenshots/visa-agency.png",
+    image: "/screenshots/visa-1.png",
+    gallery: [
+      "/screenshots/visa-1.png",
+      "/screenshots/visa-2.png",
+      "/screenshots/visa-3.png",
+    ],
     whatsappPhone: "212658204441",
     features: [
       "Dossiers & Clients : suivi par destination et type de visa (Tourisme, Affaires, Études, Travail, Regroupement familial)",
