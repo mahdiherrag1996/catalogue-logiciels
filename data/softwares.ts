@@ -223,6 +223,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
       "/screenshots/autoloc-1.png",
       "/screenshots/autoloc-2.png",
       "/screenshots/autoloc-3.png",
+      "/screenshots/autoloc-4.png",
     ],
     demoUrl: "https://locationauto-demo-naxe.vercel.app/",
     downloadUrl: "/downloads/AutoLoc-Setup.exe",
@@ -487,6 +488,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
       "/screenshots/visa-2.png",
       "/screenshots/visa-3.png",
     ],
+    demoUrl: "https://visa-agency-demo-euq83wfwm-mahdiherrag-8563.vercel.app/",
     whatsappPhone: "212658204441",
     features: [
       "Dossiers & Clients : suivi par destination et type de visa (Tourisme, Affaires, Études, Travail, Regroupement familial)",
@@ -600,6 +602,7 @@ Fini les carnets papier, les montures oubliées en atelier et les relances manue
 ✅ Planning RDV consulaires & rappels automatiques sur WhatsApp
 ✅ Suivi financier (total, avances, soldes impayés) & impression de factures
 ✅ Fonctionne même sans connexion internet avec synchronisation automatique
+🔗 Testez la démo en action ici : https://visa-agency-demo-euq83wfwm-mahdiherrag-8563.vercel.app/
 📲 Contact WhatsApp : +212 6 58 20 44 41`,
   },
   {
